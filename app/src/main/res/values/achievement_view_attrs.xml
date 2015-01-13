@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AchievementView">
+        <attr name="icon" format="reference"/>
+        <attr name="achievement">
+            <enum name="bronze" value="0"/>
+            <enum name="silver" value="1"/>
+            <enum name="gold" value="2"/>
+        </attr>
+    </declare-styleable>
+</resources>
