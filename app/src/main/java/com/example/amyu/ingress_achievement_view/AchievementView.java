@@ -152,7 +152,7 @@ public class AchievementView extends View {
      * @param context
      */
     public AchievementView(Context context) {
-        this(context, null, 0);
+        this(context, null);
     }
 
     /**
@@ -192,7 +192,7 @@ public class AchievementView extends View {
      * @param defStyleAttr
      * @param defStyleRes
      */
-    @TargetApi(Build.VERSION_CODES.L)
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public AchievementView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
@@ -201,6 +201,9 @@ public class AchievementView extends View {
     }
 
     private void setUpAttr(AttributeSet attrs) {
+        if (attrs == null) {
+            return;
+        }
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.AchievementView);
         mIconBitmap = BitmapFactory.decodeResource(mResources, a.getResourceId(R.styleable.AchievementView_icon, 0));
         int type = a.getInt(R.styleable.AchievementView_achievement, 0);
@@ -241,9 +244,16 @@ public class AchievementView extends View {
         int centerX = canvas.getWidth() / 2;
         int centerY = canvas.getHeight() / 2;
 
-        int radius = canvas.getWidth() / 2;
+
+        int radius;
+        if (canvas.getHeight() > canvas.getWidth()) {
+            radius = canvas.getHeight() / 2;
+        } else {
+            radius = canvas.getWidth() / 2;
+        }
 
         //TODO PlatinumとOnyxの時の処理
+        //double space = canvas.getWidth() - (canvas.getWidth() / 2 + (1.0 * canvas.getWidth() / 2) * Math.cos(Math.toRadians(30)));
         for (int i = 0; i < VERTEX_NUM + 1; i++) {
             double cos = Math.cos(Math.toRadians(60 * i + 30));
             double sin = Math.sin(Math.toRadians(60 * i + 30));
@@ -265,7 +275,7 @@ public class AchievementView extends View {
     }
 
     /**
-     * 小さい方に長さに合わせる
+     * wrapなときに六角形の形に合うように整形
      * {@inheritDoc}
      *
      * @param widthMeasureSpec
@@ -273,9 +283,45 @@ public class AchievementView extends View {
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        boolean canResizeWidth;
+
+        boolean canResizeHeight;
+
+        final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+        final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+
+        final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+        final int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        int resizeWidth = widthSpecSize;
+        int resizeHeight = heightSpecSize;
+
+
+        canResizeWidth = widthSpecMode != MeasureSpec.EXACTLY;
+        canResizeHeight = heightSpecMode != MeasureSpec.EXACTLY;
+
+        double ratioX = Math.cos(Math.toRadians(30));
+
+        if (canResizeWidth) {
+            resizeWidth = (int) (heightSpecSize * ratioX);
+        }
+
+        if (canResizeHeight) {
+            resizeHeight = (int) (widthSpecSize / ratioX);
+        }
+
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int minLength = Math.min(getMeasuredWidth(), getMeasuredHeight());
-        setMeasuredDimension(minLength, minLength);
+        setMeasuredDimension(resizeWidth, resizeHeight);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        /*int temp = right - left;
+
+        double space = temp - (temp / 2 + (1.0 * temp / 2) * Math.cos(Math.toRadians(30)));
+        int width = (int) (temp - space * 2);
+        super.onLayout(changed, left, top, left + width, bottom);*/
+        super.onLayout(changed, left, top, right, bottom);
     }
 
     /**
@@ -291,15 +337,17 @@ public class AchievementView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mOuterWidth = w * (3.0 / 100);
+        mOuterWidth = h * (3.0 / 100);
 
         if (mIconBitmap == null) {
             return;
         }
-        int center = w / 2;
-        int imageSize = (int) (w * (70.0 / 100));
+        //double space = h - (h / 2 + (1.0 * h / 2) * Math.cos(Math.toRadians(30)));
+        int centerY = h / 2;
+        int centerX = (int) (w / 2);
+        int imageSize = (int) (h * (70.0 / 100));
         mIconBitmap = Bitmap.createScaledBitmap(mIconBitmap, imageSize, imageSize, false);
-        mIconMatrix.setTranslate(center - mIconBitmap.getWidth() / 2, center - mIconBitmap.getWidth() / 2);
+        mIconMatrix.setTranslate(centerX - mIconBitmap.getWidth() / 2, centerY - mIconBitmap.getHeight() / 2);
 
     }
 
@@ -308,7 +356,7 @@ public class AchievementView extends View {
      *
      * @param resId 色のリソースID
      */
-    public void setInnerColorResource(int resId) {
+    public void setInnerColorRes(int resId) {
         int color = mResources.getColor(resId);
         if (mInnerColor == color) {
             return;
@@ -322,7 +370,7 @@ public class AchievementView extends View {
      *
      * @param resId 色のリソースID
      */
-    public void setOuterColorResource(int resId) {
+    public void setOuterColorRes(int resId) {
         int color = mResources.getColor(resId);
         if (mOuterColor == color) {
             return;
@@ -345,6 +393,15 @@ public class AchievementView extends View {
     }
 
     /**
+     * 内側の色 {@link #mInnerColor} を返す
+     *
+     * @return {@link #mInnerColor}
+     */
+    public int getInnerColor() {
+        return mInnerColor;
+    }
+
+    /**
      * 外枠の色 {@link #mOuterColor} を指定
      *
      * @param color 16進数の色コード
@@ -355,6 +412,15 @@ public class AchievementView extends View {
         }
         mOuterColor = color;
         invalidate();
+    }
+
+    /**
+     * 外枠の色 {@link #mOuterColor} を返す
+     *
+     * @return {@link #mOuterColor}
+     */
+    public int getOuterColor() {
+        return mOuterColor;
     }
 
     /**
@@ -375,7 +441,7 @@ public class AchievementView extends View {
      *
      * @param resId drawableのリソースから指定
      */
-    public void setIconResource(int resId) {
+    public void setIconRes(int resId) {
         if (resId == 0) {
             return;
         }
@@ -384,7 +450,7 @@ public class AchievementView extends View {
     }
 
     /**
-     * Achievementのタイプの指定
+     * Achievementのタイプ {@link #mAchievementType} の指定
      * TODO PlatinumとOnyxの対応
      *
      * @param type {@link #BRONZE}, {@link #SILVER}, {@link #GOLD} から指定
@@ -404,6 +470,40 @@ public class AchievementView extends View {
                 mInnerColor = COLOR_GOLD_INNER;
                 mOuterColor = COLOR_GOLD_OUTER;
                 break;
+        }
+        invalidate();
+    }
+
+    /**
+     * Achievementのタイプ {@link #mAchievementType} の取得
+     *
+     * @return {@link #mAchievementType}
+     */
+    public int getAchievementType() {
+        return mAchievementType;
+    }
+
+    public void setAchievement(Achievement item) {
+        if (item.getAchievementType() > -1) {
+            setAchievementType(item.getAchievementType());
+        }
+        if (item.getIconBitmap() != null) {
+            setIconBitmap(item.getIconBitmap());
+        }
+        if (item.getIconResId() > -1) {
+            setIconRes(item.getIconResId());
+        }
+        if (item.getInnerColor() > -1) {
+            setInnerColor(item.getInnerColor());
+        }
+        if (item.getInnerColorRes() > -1) {
+            setInnerColorRes(item.getInnerColorRes());
+        }
+        if (item.getOuterColor() > -1) {
+            setOuterColor(item.getOuterColor());
+        }
+        if (item.getOuterColorRes() > -1) {
+            setOuterColorRes(item.getOuterColorRes());
         }
         invalidate();
     }

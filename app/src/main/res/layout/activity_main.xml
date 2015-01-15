@@ -6,32 +6,17 @@
               android:orientation="vertical"
               tools:context=".MainActivity">
 
+    <!--<com.example.amyu.ingress_achievement_view.IngressListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/sample1"
+        app:numColumns="4"/>-->
 
     <com.example.amyu.ingress_achievement_view.AchievementView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/sample1"/>
-
-    <com.example.amyu.ingress_achievement_view.AchievementView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/sample2"/>
-
-    <com.example.amyu.ingress_achievement_view.AchievementView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/sample3"/>
-
-    <com.example.amyu.ingress_achievement_view.AchievementView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/sample4"/>
-
-    <com.example.amyu.ingress_achievement_view.AchievementView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/sample5"/>
-
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:icon="@drawable/sample_icon"
+        app:achievement="bronze"/>
 
 
 </LinearLayout>

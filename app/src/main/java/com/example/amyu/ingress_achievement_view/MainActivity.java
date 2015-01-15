@@ -11,18 +11,36 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AchievementView view1 = (AchievementView) findViewById(R.id.sample1);
-        AchievementView view2 = (AchievementView) findViewById(R.id.sample2);
-        AchievementView view3 = (AchievementView) findViewById(R.id.sample3);
-        AchievementView view4 = (AchievementView) findViewById(R.id.sample4);
-        AchievementView view5 = (AchievementView) findViewById(R.id.sample5);
-
-        view1.setAchievementType(AchievementView.BRONZE);
-        view2.setAchievementType(AchievementView.SILVER);
-        view3.setAchievementType(AchievementView.GOLD);
-
-        view1.setIconResource(R.drawable.sample_icon);
-        view2.setIconResource(R.drawable.ic_launcher);
+        /*IngressListView view = (IngressListView) findViewById(R.id.sample1);
+        ArrayList<Achievement> itemList = new ArrayList<>();
+        Achievement item;
+        item = new Achievement();
+        item.setAchievementType(0);
+        item.setIconResId(R.drawable.sample_icon);
+        itemList.add(item);
+        item = new Achievement();
+        item.setIconResId(R.drawable.ic_launcher);
+        item.setAchievementType(1);
+        itemList.add(item);
+        item = new Achievement();
+        item.setAchievementType(2);
+        itemList.add(item);
+        item = new Achievement();
+        item.setAchievementType(0);
+        itemList.add(item);
+        item = new Achievement();
+        item.setAchievementType(1);
+        itemList.add(item);
+        item = new Achievement();
+        item.setAchievementType(2);
+        itemList.add(item);
+        item = new Achievement();
+        item.setAchievementType(2);
+        itemList.add(item);
+        item = new Achievement();
+        item.setAchievementType(2);
+        itemList.add(item);
+        view.setAchievementList(itemList);*/
     }
 
 
