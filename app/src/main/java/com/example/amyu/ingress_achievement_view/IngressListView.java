@@ -24,9 +24,12 @@ public class IngressListView extends ViewGroup {
     /**
      * 一つのAchievementに対するマージンのパーセンテージ
      */
-    private final static double MARGIN_PERCENT = 0.05;
+    private final static double PADDING_PERCENT = 0.05;
 
-    private int mChildrenCount;
+    /**
+     * {@link com.example.amyu.ingress_achievement_view.IngressListView.OnItemClickListener} のOnItemClickListenerよ
+     */
+    private OnItemClickListener mOnItemClickListener;
 
     /**
      * constructor
@@ -113,16 +116,16 @@ public class IngressListView extends ViewGroup {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        //描画する部分の最大の横幅
-        final int width = (int) (MeasureSpec.getSize(widthMeasureSpec) - (MeasureSpec.getSize(widthMeasureSpec) / mNumColumns) / (2 + 0.5 + MARGIN_PERCENT * mNumColumns + MARGIN_PERCENT / 2));
+        int width = MeasureSpec.getSize(widthMeasureSpec);
 
-        //一つのAchievementViewの横幅 高さは横幅により決定(wrap)
-        int viewWidth = (int) ((2 * width) / (2 * mNumColumns + 2 * mNumColumns * MARGIN_PERCENT + MARGIN_PERCENT));
+        int viewWidth = (int) (width / (mNumColumns + 0.5));
+
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             getChildAt(i).measure(MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
         }
     }
+
 
     /**
      * AchievementViewをそれぞれ配置する場所を決める
@@ -143,23 +146,25 @@ public class IngressListView extends ViewGroup {
             int width = view.getMeasuredWidth();
             int height = view.getMeasuredHeight();
             int topSpace = (int) (Math.sin(Math.toRadians(30)) / 2 * height * column);
-            int margin = (int) (width * MARGIN_PERCENT);
 
-            int oddMargin = (int) (width * MARGIN_PERCENT / 2);
+            int padding = (int) (width * PADDING_PERCENT)/2;
+
 
             if (column % 2 == 0) {
                 view.layout(
-                        row * width + margin * row,
-                        column * height - topSpace + margin * column,
-                        (row + 1) * width + margin * row,
-                        (column + 1) * height - topSpace + margin * column);
+                        row * width,
+                        column * height - topSpace,
+                        (row + 1) * width,
+                        (column + 1) * height - topSpace);
             } else {
                 view.layout(
-                        row * width + width / 2 + margin * row + oddMargin,
-                        column * height - topSpace + margin * column,
-                        (row + 1) * width + width / 2 + margin * row + oddMargin,
-                        (column + 1) * height - topSpace + margin * column);
+                        row * width + width / 2,
+                        column * height - topSpace,
+                        (row + 1) * width + width / 2,
+                        (column + 1) * height - topSpace);
             }
+            view.setPadding(padding, padding, padding, padding);
+
             row++;
             if (row == mNumColumns) {
                 column++;
@@ -167,7 +172,6 @@ public class IngressListView extends ViewGroup {
             }
         }
     }
-
 
     /**
      * {@inheritDoc}
@@ -180,15 +184,15 @@ public class IngressListView extends ViewGroup {
         return (AchievementView) super.getChildAt(index);
     }
 
-    public void addAllView(List<AchievementView> viewList) {
-        if (viewList == null) {
-            return;
-        }
-        for (AchievementView view : viewList) {
-            addView(view);
-        }
-    }
-
+    /**
+     * {@link com.example.amyu.ingress_achievement_view.AchievementView} 以外のViewが来たら落とす感じで
+     * あと {@link com.example.amyu.ingress_achievement_view.AchievementView.OnClickListener} をセットする感じで
+     * で､superにセットして上げる感じ
+     *
+     * @param child  {@link com.example.amyu.ingress_achievement_view.AchievementView}
+     * @param index  {@inheritDoc}
+     * @param params {@inheritDoc}
+     */
     @Override
     public void addView(View child, int index, LayoutParams params) {
         if (!(child instanceof AchievementView)) {
@@ -198,14 +202,39 @@ public class IngressListView extends ViewGroup {
         super.addView(child, index, params);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param event
+     * @return
+     */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event)  {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event)  {
         return true;
+    }
+
+    /**
+     * すべてのaaaaaねみいいいいいいいい
+     * @param viewList
+     */
+    public void addAllView(List<AchievementView> viewList) {
+        if (viewList == null) {
+            return;
+        }
+        for (AchievementView view : viewList) {
+            addView(view);
+        }
     }
 
     /**
@@ -222,6 +251,17 @@ public class IngressListView extends ViewGroup {
         requestLayout();
     }
 
+    /**
+     * あのりすなーせっとするやつ
+     * @param listener
+     */
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mOnItemClickListener = listener;
+    }
+
+    /**
+     * あのくりっくのやつ
+     */
     private AchievementView.OnClickListener mOnClickListener = new AchievementView.OnClickListener() {
         @Override
         public void onClick(AchievementView view) {
@@ -233,12 +273,9 @@ public class IngressListView extends ViewGroup {
         }
     };
 
-    private OnItemClickListener mOnItemClickListener;
-
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        mOnItemClickListener = listener;
-    }
-
+    /**
+     * あのアレよ､アレ
+     */
     public interface OnItemClickListener {
         public void onItemClick(AchievementView view, int position);
     }

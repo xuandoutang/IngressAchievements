@@ -297,12 +297,7 @@ public class AchievementView extends View {
         int centerY = height / 2;
 
 
-        int radius;
-        if (height > width) {
-            radius = height / 2;
-        } else {
-            radius = width / 2;
-        }
+        int radius = height / 2;
 
 
         //TODO PlatinumとOnyxの時の処理
@@ -311,12 +306,13 @@ public class AchievementView extends View {
             double cos = Math.cos(Math.toRadians(60 * i + 30));
             double sin = Math.sin(Math.toRadians(60 * i + 30));
 
-            double innerX = centerX + (radius - mOuterWidth) * cos;
-            double innerY = centerY + (radius - mOuterWidth) * sin;
+            double innerX = centerX + (radius - mOuterWidth) * cos + getPaddingLeft();
+            double innerY = centerY + (radius - mOuterWidth) * sin + getPaddingTop();
+
             mInnerPath.lineTo((float) innerX, (float) innerY);
 
-            double outerX = centerX + radius * cos;
-            double outerY = centerY + radius * sin;
+            double outerX = centerX + radius * cos + getPaddingLeft();
+            double outerY = centerY + radius * sin + getPaddingTop();
             mOuterPath.lineTo((float) outerX, (float) outerY);
 
         }
