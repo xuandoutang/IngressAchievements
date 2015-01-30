@@ -25,13 +25,6 @@ public class MainActivity extends Activity {
 
         ingressListView.setNumColumns(1);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ingressListView.setNumColumns(2);
-            }
-        }, 1000);
-
         SeekBar seekBar = (SeekBar) findViewById(R.id.sample2);
         seekBar.setProgress(0);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

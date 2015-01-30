@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -195,6 +196,16 @@ public class IngressListView extends ViewGroup {
         }
         ((AchievementView) (child)).setOnClickListener(mOnClickListener);
         super.addView(child, index, params);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event)  {
+        return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event)  {
+        return true;
     }
 
     /**
