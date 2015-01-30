@@ -2,6 +2,9 @@ package com.example.amyu.ingress_achievement_view;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.widget.SeekBar;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
@@ -11,37 +14,51 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*IngressListView view = (IngressListView) findViewById(R.id.sample1);
-        ArrayList<Achievement> itemList = new ArrayList<>();
-        Achievement item;
-        item = new Achievement();
-        item.setAchievementType(0);
-        item.setIconResId(R.drawable.sample_icon);
-        itemList.add(item);
-        item = new Achievement();
-        item.setIconResId(R.drawable.ic_launcher);
-        item.setAchievementType(1);
-        itemList.add(item);
-        item = new Achievement();
-        item.setAchievementType(2);
-        itemList.add(item);
-        item = new Achievement();
-        item.setAchievementType(0);
-        itemList.add(item);
-        item = new Achievement();
-        item.setAchievementType(1);
-        itemList.add(item);
-        item = new Achievement();
-        item.setAchievementType(2);
-        itemList.add(item);
-        item = new Achievement();
-        item.setAchievementType(2);
-        itemList.add(item);
-        item = new Achievement();
-        item.setAchievementType(2);
-        itemList.add(item);
-        view.setAchievementList(itemList);*/
+        final IngressListView ingressListView = (IngressListView) findViewById(R.id.sample1);
+        ingressListView.setOnItemClickListener(mOnItemClickListener);
+
+        for (int i = 0; i < 50; i++) {
+            AchievementView view = new AchievementView(getApplicationContext());
+            view.setAchievementType(AchievementView.GOLD);
+            ingressListView.addView(view);
+        }
+
+        ingressListView.setNumColumns(1);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ingressListView.setNumColumns(2);
+            }
+        }, 1000);
+
+        SeekBar seekBar = (SeekBar) findViewById(R.id.sample2);
+        seekBar.setProgress(0);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Toast.makeText(getApplicationContext(), progress + "", Toast.LENGTH_SHORT).show();
+                ingressListView.setNumColumns(progress + 1);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
+    private IngressListView.OnItemClickListener mOnItemClickListener = new IngressListView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AchievementView view, int position) {
+            Toast.makeText(getApplicationContext(), position + "", Toast.LENGTH_SHORT).show();
+            view.setAchievementType(AchievementView.SILVER);
+        }
+    };
 
 }

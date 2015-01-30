@@ -6,17 +6,16 @@
               android:orientation="vertical"
               tools:context=".MainActivity">
 
-    <!--<com.example.amyu.ingress_achievement_view.IngressListView
+    <com.example.amyu.ingress_achievement_view.IngressListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:id="@+id/sample1"
-        app:numColumns="4"/>-->
+        app:numColumns="7"/>
 
-    <com.example.amyu.ingress_achievement_view.AchievementView
+    <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:icon="@drawable/sample_icon"
-        app:achievement="bronze"/>
-
-
+        android:max="10"
+        android:id="@+id/sample2"/>
 </LinearLayout>

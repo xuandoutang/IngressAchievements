@@ -10,8 +10,12 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.Region;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -145,6 +149,11 @@ public class AchievementView extends View {
      */
     private Resources mResources;
 
+
+    private Region mRegion = new Region();
+
+    private RectF mRectF = new RectF();
+
     /**
      * constructor
      * {@inheritDoc}
@@ -200,6 +209,12 @@ public class AchievementView extends View {
         setUpPaint();
     }
 
+    /**
+     * AttributeSetからのデータの取得
+     * {@inheritDoc}
+     *
+     * @param attrs
+     */
     private void setUpAttr(AttributeSet attrs) {
         if (attrs == null) {
             return;
@@ -229,6 +244,7 @@ public class AchievementView extends View {
         mOuterPath = new Path();
     }
 
+
     /**
      * {@inheritDoc}
      *
@@ -238,23 +254,34 @@ public class AchievementView extends View {
     protected void onDraw(Canvas canvas) {
         canvas.drawARGB(0, 0, 0, 0);
 
+        mIconPaint.reset();
+        mInnerPath.reset();
+        mOuterPath.reset();
+        mOuterCorePaint.reset();
+        mInnerCorePaint.reset();
+
         mOuterCorePaint.setColor(mOuterColor);
         mInnerCorePaint.setColor(mInnerColor);
 
-        int centerX = canvas.getWidth() / 2;
-        int centerY = canvas.getHeight() / 2;
+        //padding
+        int width = canvas.getWidth() - getPaddingLeft() - getPaddingRight();
+        int height = canvas.getHeight() - getPaddingTop() - getPaddingBottom();
+
+        int centerX = width / 2;
+        int centerY = height / 2;
 
 
         int radius;
-        if (canvas.getHeight() > canvas.getWidth()) {
-            radius = canvas.getHeight() / 2;
+        if (height > width) {
+            radius = height / 2;
         } else {
-            radius = canvas.getWidth() / 2;
+            radius = width / 2;
         }
 
+
         //TODO PlatinumとOnyxの時の処理
-        //double space = canvas.getWidth() - (canvas.getWidth() / 2 + (1.0 * canvas.getWidth() / 2) * Math.cos(Math.toRadians(30)));
         for (int i = 0; i < VERTEX_NUM + 1; i++) {
+
             double cos = Math.cos(Math.toRadians(60 * i + 30));
             double sin = Math.sin(Math.toRadians(60 * i + 30));
 
@@ -262,10 +289,21 @@ public class AchievementView extends View {
             double innerY = centerY + (radius - mOuterWidth) * sin;
             mInnerPath.lineTo((float) innerX, (float) innerY);
 
+            Log.d("log" + i, innerX + "," + innerY);
+
             double outerX = centerX + radius * cos;
             double outerY = centerY + radius * sin;
             mOuterPath.lineTo((float) outerX, (float) outerY);
+
         }
+
+
+        mRectF.setEmpty();
+        mInnerPath.computeBounds(mRectF, true);
+        mRegion.setEmpty();
+        mRegion2.setEmpty();
+        mRegion2.set((int) mRectF.left, (int) mRectF.top, (int) mRectF.right, (int) mRectF.bottom);
+        mRegion.setPath(mInnerPath, mRegion2);
         canvas.drawPath(mOuterPath, mOuterCorePaint);
         canvas.drawPath(mInnerPath, mInnerCorePaint);
 
@@ -273,6 +311,9 @@ public class AchievementView extends View {
             canvas.drawBitmap(mIconBitmap, mIconMatrix, mIconPaint);
         }
     }
+
+    private Region mRegion2 = new Region();
+
 
     /**
      * wrapなときに六角形の形に合うように整形
@@ -296,7 +337,6 @@ public class AchievementView extends View {
         int resizeWidth = widthSpecSize;
         int resizeHeight = heightSpecSize;
 
-
         canResizeWidth = widthSpecMode != MeasureSpec.EXACTLY;
         canResizeHeight = heightSpecMode != MeasureSpec.EXACTLY;
 
@@ -314,16 +354,6 @@ public class AchievementView extends View {
         setMeasuredDimension(resizeWidth, resizeHeight);
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        /*int temp = right - left;
-
-        double space = temp - (temp / 2 + (1.0 * temp / 2) * Math.cos(Math.toRadians(30)));
-        int width = (int) (temp - space * 2);
-        super.onLayout(changed, left, top, left + width, bottom);*/
-        super.onLayout(changed, left, top, right, bottom);
-    }
-
     /**
      * 外枠の大きさは全体の1辺のの長さの3%とする
      * {@link #mIconBitmap} がNullじゃなかった場合､1辺の長さの70%にリサイズ
@@ -337,18 +367,36 @@ public class AchievementView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+
         mOuterWidth = h * (3.0 / 100);
 
         if (mIconBitmap == null) {
             return;
         }
-        //double space = h - (h / 2 + (1.0 * h / 2) * Math.cos(Math.toRadians(30)));
         int centerY = h / 2;
-        int centerX = (int) (w / 2);
+        int centerX = w / 2;
         int imageSize = (int) (h * (70.0 / 100));
         mIconBitmap = Bitmap.createScaledBitmap(mIconBitmap, imageSize, imageSize, false);
         mIconMatrix.setTranslate(centerX - mIconBitmap.getWidth() / 2, centerY - mIconBitmap.getHeight() / 2);
+    }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                if (mRegion.contains((int) event.getX(), (int) event.getY())) {
+                    if (mOnClickListener == null) {
+                        return true;
+                    }
+                    mOnClickListener.onClick(this);
+                }
+                break;
+        }
+
+        return true;
     }
 
     /**
@@ -483,29 +531,14 @@ public class AchievementView extends View {
         return mAchievementType;
     }
 
-    public void setAchievement(Achievement item) {
-        if (item.getAchievementType() > -1) {
-            setAchievementType(item.getAchievementType());
-        }
-        if (item.getIconBitmap() != null) {
-            setIconBitmap(item.getIconBitmap());
-        }
-        if (item.getIconResId() > -1) {
-            setIconRes(item.getIconResId());
-        }
-        if (item.getInnerColor() > -1) {
-            setInnerColor(item.getInnerColor());
-        }
-        if (item.getInnerColorRes() > -1) {
-            setInnerColorRes(item.getInnerColorRes());
-        }
-        if (item.getOuterColor() > -1) {
-            setOuterColor(item.getOuterColor());
-        }
-        if (item.getOuterColorRes() > -1) {
-            setOuterColorRes(item.getOuterColorRes());
-        }
-        invalidate();
+    private OnClickListener mOnClickListener;
+
+    public void setOnClickListener(OnClickListener listener) {
+        mOnClickListener = listener;
+    }
+
+    public interface OnClickListener {
+        public void onClick(AchievementView view);
     }
 
 }

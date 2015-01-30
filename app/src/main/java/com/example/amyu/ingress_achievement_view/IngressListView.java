@@ -8,33 +8,69 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by amyu on 15/01/14.
  */
 public class IngressListView extends ViewGroup {
 
+    /**
+     * 列の数
+     */
     private int mNumColumns = 6;
 
-    private int mLayoutWidth;
+    /**
+     * 一つのAchievementに対するマージンのパーセンテージ
+     */
+    private final static double MARGIN_PERCENT = 0.05;
 
-    private ArrayList<Achievement> mAchievementList;
+    private int mChildrenCount;
 
+    /**
+     * constructor
+     * {@inheritDoc}
+     *
+     * @param context
+     */
     public IngressListView(Context context) {
         this(context, null);
     }
 
+    /**
+     * constructor
+     * {@inheritDoc}
+     *
+     * @param context
+     * @param attrs
+     */
     public IngressListView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
+    /**
+     * constructor
+     * {@inheritDoc}
+     *
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     */
     public IngressListView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setUpAttr(attrs);
         init();
     }
 
+    /**
+     * constructor
+     * {@inheritDoc}
+     *
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     * @param defStyleRes
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public IngressListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -42,6 +78,12 @@ public class IngressListView extends ViewGroup {
         init();
     }
 
+    /**
+     * AttributeSetからのデータの取得
+     * {@inheritDoc}
+     *
+     * @param attrs
+     */
     private void setUpAttr(AttributeSet attrs) {
         if (attrs == null) {
             return;
@@ -52,93 +94,143 @@ public class IngressListView extends ViewGroup {
         a.recycle();
     }
 
+    /**
+     * 初期化
+     */
     private void init() {
-        mAchievementList = new ArrayList<>();
     }
 
+    /**
+     * 1つのAchievementの横の長さは
+     * (このViewの全体の横幅 - AchievementView同士のMargin - AchievementViewの半分の横幅) / 列数
+     * {@inheritDoc}
+     *
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int width = View.resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        final int height = View.resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        this.setMeasuredDimension(width, height);
-        mLayoutWidth = width;
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int viewLength = width / mNumColumns;
+        //描画する部分の最大の横幅
+        final int width = (int) (MeasureSpec.getSize(widthMeasureSpec) - (MeasureSpec.getSize(widthMeasureSpec) / mNumColumns) / (2 + 0.5 + MARGIN_PERCENT * mNumColumns + MARGIN_PERCENT / 2));
 
+        //一つのAchievementViewの横幅 高さは横幅により決定(wrap)
+        int viewWidth = (int) ((2 * width) / (2 * mNumColumns + 2 * mNumColumns * MARGIN_PERCENT + MARGIN_PERCENT));
         int childCount = getChildCount();
-
-        double space = viewLength - (viewLength / 2 + (1.0 * viewLength / 2) * Math.cos(Math.toRadians(30)));
-        int viewWidth = (int) (viewLength - space * 2);
-        int viewHeight = viewLength;
         for (int i = 0; i < childCount; i++) {
-            getChildAt(i).measure(viewWidth, viewHeight);
+            getChildAt(i).measure(MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
         }
     }
 
+    /**
+     * AchievementViewをそれぞれ配置する場所を決める
+     * {@inheritDoc}
+     *
+     * @param changed
+     * @param l
+     * @param t
+     * @param r
+     * @param b
+     */
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int column = 1;
+        int column = 0;
         int row = 0;
-        int viewLength = mLayoutWidth / mNumColumns;
-        /*double space = viewLength - (viewLength / 2 + (1.0 * viewLength / 2) * Math.cos(Math.toRadians(30)));
-        int width = (int) (viewLength - space * 2);
-        int height = viewLength;*/
         for (int i = 0; i < getChildCount(); i++) {
             AchievementView view = getChildAt(i);
+            int width = view.getMeasuredWidth();
+            int height = view.getMeasuredHeight();
+            int topSpace = (int) (Math.sin(Math.toRadians(30)) / 2 * height * column);
+            int margin = (int) (width * MARGIN_PERCENT);
 
-            //Log.d("Log", view.getWidth() + "," + view.getHeight());
-            /*view.layout(i * width, row, (i + 1) * width, column * height);*/
+            int oddMargin = (int) (width * MARGIN_PERCENT / 2);
 
-            view.layout(i * viewLength, row, (i + 1) * view.getWidth(), column * viewLength);
+            if (column % 2 == 0) {
+                view.layout(
+                        row * width + margin * row,
+                        column * height - topSpace + margin * column,
+                        (row + 1) * width + margin * row,
+                        (column + 1) * height - topSpace + margin * column);
+            } else {
+                view.layout(
+                        row * width + width / 2 + margin * row + oddMargin,
+                        column * height - topSpace + margin * column,
+                        (row + 1) * width + width / 2 + margin * row + oddMargin,
+                        (column + 1) * height - topSpace + margin * column);
+            }
+            row++;
+            if (row == mNumColumns) {
+                column++;
+                row = 0;
+            }
         }
     }
 
-    @Override
-    public int getChildCount() {
-        return mAchievementList.size();
-    }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param index
+     * @return
+     */
     @Override
     public AchievementView getChildAt(int index) {
         return (AchievementView) super.getChildAt(index);
     }
 
-    public void setAchievementList(ArrayList<Achievement> itemList) {
-        if (itemList == null) {
+    public void addAllView(List<AchievementView> viewList) {
+        if (viewList == null) {
             return;
         }
-        mAchievementList = itemList;
-        syncData();
-    }
-
-    private void syncData() {
-        removeAllViews();
-        for (Achievement item : mAchievementList) {
-            AchievementView view = new AchievementView(getContext());
-            view.setAchievement(item);
+        for (AchievementView view : viewList) {
             addView(view);
         }
-        invalidate();
     }
 
-    public ArrayList<Achievement> getAchievementList() {
-        return mAchievementList;
+    @Override
+    public void addView(View child, int index, LayoutParams params) {
+        if (!(child instanceof AchievementView)) {
+            throw new IllegalArgumentException("AchievementView以外が来てるよーーーーー");
+        }
+        ((AchievementView) (child)).setOnClickListener(mOnClickListener);
+        super.addView(child, index, params);
     }
 
-    public void add(Achievement item) {
-        if (item == null) {
+    /**
+     * 表示する列数 {@link #mNumColumns} のセット
+     *
+     * @param numColumns 列数
+     */
+    public void setNumColumns(int numColumns) {
+        if (numColumns < 0) {
             return;
         }
-        mAchievementList.add(item);
-        invalidate();
+
+        mNumColumns = numColumns;
+        requestLayout();
     }
 
-    public void addAll(ArrayList<Achievement> itemList) {
-        if (itemList == null) {
-            return;
+    private AchievementView.OnClickListener mOnClickListener = new AchievementView.OnClickListener() {
+        @Override
+        public void onClick(AchievementView view) {
+            if (mOnItemClickListener == null) {
+                return;
+            }
+            int position = indexOfChild(view);
+            mOnItemClickListener.onItemClick(view, position);
         }
-        mAchievementList.addAll(itemList);
-        invalidate();
+    };
+
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mOnItemClickListener = listener;
     }
+
+    public interface OnItemClickListener {
+        public void onItemClick(AchievementView view, int position);
+    }
+
 
 }
