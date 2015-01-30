@@ -26,7 +26,10 @@ public class IngressListView extends ViewGroup {
      */
     private final static double MARGIN_PERCENT = 0.05;
 
-    private int mChildrenCount;
+    /**
+     * {@link com.example.amyu.ingress_achievement_view.IngressListView.OnItemClickListener} のOnItemClickListenerよ
+     */
+    private OnItemClickListener mOnItemClickListener;
 
     /**
      * constructor
@@ -124,6 +127,7 @@ public class IngressListView extends ViewGroup {
         }
     }
 
+
     /**
      * AchievementViewをそれぞれ配置する場所を決める
      * {@inheritDoc}
@@ -168,7 +172,6 @@ public class IngressListView extends ViewGroup {
         }
     }
 
-
     /**
      * {@inheritDoc}
      *
@@ -180,15 +183,15 @@ public class IngressListView extends ViewGroup {
         return (AchievementView) super.getChildAt(index);
     }
 
-    public void addAllView(List<AchievementView> viewList) {
-        if (viewList == null) {
-            return;
-        }
-        for (AchievementView view : viewList) {
-            addView(view);
-        }
-    }
-
+    /**
+     * {@link com.example.amyu.ingress_achievement_view.AchievementView} 以外のViewが来たら落とす感じで
+     * あと {@link com.example.amyu.ingress_achievement_view.AchievementView.OnClickListener} をセットする感じで
+     * で､superにセットして上げる感じ
+     *
+     * @param child  {@link com.example.amyu.ingress_achievement_view.AchievementView}
+     * @param index  {@inheritDoc}
+     * @param params {@inheritDoc}
+     */
     @Override
     public void addView(View child, int index, LayoutParams params) {
         if (!(child instanceof AchievementView)) {
@@ -198,14 +201,39 @@ public class IngressListView extends ViewGroup {
         super.addView(child, index, params);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param event
+     * @return
+     */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event)  {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event)  {
         return true;
+    }
+
+    /**
+     * すべてのaaaaaねみいいいいいいいい
+     * @param viewList
+     */
+    public void addAllView(List<AchievementView> viewList) {
+        if (viewList == null) {
+            return;
+        }
+        for (AchievementView view : viewList) {
+            addView(view);
+        }
     }
 
     /**
@@ -222,6 +250,17 @@ public class IngressListView extends ViewGroup {
         requestLayout();
     }
 
+    /**
+     * あのりすなーせっとするやつ
+     * @param listener
+     */
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mOnItemClickListener = listener;
+    }
+
+    /**
+     * あのくりっくのやつ
+     */
     private AchievementView.OnClickListener mOnClickListener = new AchievementView.OnClickListener() {
         @Override
         public void onClick(AchievementView view) {
@@ -233,12 +272,9 @@ public class IngressListView extends ViewGroup {
         }
     };
 
-    private OnItemClickListener mOnItemClickListener;
-
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        mOnItemClickListener = listener;
-    }
-
+    /**
+     * あのアレよ､アレ
+     */
     public interface OnItemClickListener {
         public void onItemClick(AchievementView view, int position);
     }
