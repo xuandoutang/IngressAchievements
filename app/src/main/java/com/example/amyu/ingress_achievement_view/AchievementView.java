@@ -14,7 +14,6 @@ import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -149,10 +148,27 @@ public class AchievementView extends View {
      */
     private Resources mResources;
 
+    /**
+     * 六角形の部分のClickListenerを付けるためのRegion
+     * そのうち変数名変えようかなー
+     */
+    private Region mRegion;
 
-    private Region mRegion = new Region();
+    /**
+     * Touch部分のRegionにセットするRectFのアレをセットするClip
+     */
+    private Region mClipRegion;
 
-    private RectF mRectF = new RectF();
+    /**
+     * Touch部分のRectF
+     */
+    private RectF mRectF;
+
+    /**
+     * {@link com.example.amyu.ingress_achievement_view.AchievementView.OnClickListener} のOnClickListenerのセット
+     * 名前が紛らわしい感がパない
+     */
+    private OnClickListener mOnClickListener;
 
     /**
      * constructor
@@ -189,7 +205,7 @@ public class AchievementView extends View {
         mResources = getResources();
 
         setUpAttr(attrs);
-        setUpPaint();
+        setUp();
     }
 
     /**
@@ -206,7 +222,7 @@ public class AchievementView extends View {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         setUpAttr(attrs);
-        setUpPaint();
+        setUp();
     }
 
     /**
@@ -227,21 +243,31 @@ public class AchievementView extends View {
         a.recycle();
     }
 
+
     /**
      * PaintとPathとかとかのセットアップ
      */
-    private void setUpPaint() {
+    private void setUp() {
+        //外枠のPaint
         mOuterCorePaint = new Paint();
         mOuterCorePaint.setAntiAlias(true);
 
+        //内側のPaint
         mInnerCorePaint = new Paint();
         mInnerCorePaint.setAntiAlias(true);
 
+        //アイコンがあった場合の画像のPaint
         mIconPaint = new Paint();
         mIconMatrix = new Matrix();
 
+        //パス!!!!
         mInnerPath = new Path();
         mOuterPath = new Path();
+
+        //六角形の部分のTouchListenerのみを拾ってOnClickListenerに渡すためのやつ
+        mRegion = new Region();
+        mClipRegion = new Region();
+        mRectF = new RectF();
     }
 
 
@@ -289,8 +315,6 @@ public class AchievementView extends View {
             double innerY = centerY + (radius - mOuterWidth) * sin;
             mInnerPath.lineTo((float) innerX, (float) innerY);
 
-            Log.d("log" + i, innerX + "," + innerY);
-
             double outerX = centerX + radius * cos;
             double outerY = centerY + radius * sin;
             mOuterPath.lineTo((float) outerX, (float) outerY);
@@ -301,9 +325,9 @@ public class AchievementView extends View {
         mRectF.setEmpty();
         mInnerPath.computeBounds(mRectF, true);
         mRegion.setEmpty();
-        mRegion2.setEmpty();
-        mRegion2.set((int) mRectF.left, (int) mRectF.top, (int) mRectF.right, (int) mRectF.bottom);
-        mRegion.setPath(mInnerPath, mRegion2);
+        mClipRegion.setEmpty();
+        mClipRegion.set((int) mRectF.left, (int) mRectF.top, (int) mRectF.right, (int) mRectF.bottom);
+        mRegion.setPath(mInnerPath, mClipRegion);
         canvas.drawPath(mOuterPath, mOuterCorePaint);
         canvas.drawPath(mInnerPath, mInnerCorePaint);
 
@@ -311,9 +335,6 @@ public class AchievementView extends View {
             canvas.drawBitmap(mIconBitmap, mIconMatrix, mIconPaint);
         }
     }
-
-    private Region mRegion2 = new Region();
-
 
     /**
      * wrapなときに六角形の形に合うように整形
@@ -396,7 +417,7 @@ public class AchievementView extends View {
                 break;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -531,12 +552,21 @@ public class AchievementView extends View {
         return mAchievementType;
     }
 
-    private OnClickListener mOnClickListener;
-
+    /**
+     * {@link com.example.amyu.ingress_achievement_view.AchievementView.OnClickListener} のセット
+     *
+     * @param listener {@link com.example.amyu.ingress_achievement_view.AchievementView.OnClickListener}
+     */
     public void setOnClickListener(OnClickListener listener) {
+        if (listener == null) {
+            return;
+        }
         mOnClickListener = listener;
     }
 
+    /**
+     * このViewの専用のClickListener
+     */
     public interface OnClickListener {
         public void onClick(AchievementView view);
     }
