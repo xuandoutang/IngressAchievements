@@ -22,7 +22,7 @@ public class IngressListView extends ViewGroup {
     private int mNumColumns = 6;
 
     /**
-     * 一つのAchievementに対するマージンのパーセンテージ
+     * 一つのAchievementに対するPaddingのパーセンテージ
      */
     private final static double PADDING_PERCENT = 0.05;
 
@@ -105,8 +105,6 @@ public class IngressListView extends ViewGroup {
     }
 
     /**
-     * 1つのAchievementの横の長さは
-     * (このViewの全体の横幅 - AchievementView同士のMargin - AchievementViewの半分の横幅) / 列数
      * {@inheritDoc}
      *
      * @param widthMeasureSpec
@@ -203,6 +201,8 @@ public class IngressListView extends ViewGroup {
     }
 
     /**
+     * Viewが重なった部分のTouchの透過
+     * falseを返すことにより､下のViewにTouchEventが渡るため,いい感じに良い
      * {@inheritDoc}
      *
      * @param event
