@@ -30,7 +30,6 @@ public class MainActivity extends Activity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Toast.makeText(getApplicationContext(), progress + "", Toast.LENGTH_SHORT).show();
                 ingressListView.setNumColumns(progress + 1);
             }
 
