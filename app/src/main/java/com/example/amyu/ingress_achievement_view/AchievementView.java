@@ -106,6 +106,8 @@ public class AchievementView extends View {
      */
     private Bitmap mIconBitmap;
 
+    private Bitmap mResizeBitmap;
+
     /**
      * {@link #mIconBitmap}の移動用Matrix
      * TODO Rectの方がいいのかな?
@@ -327,8 +329,8 @@ public class AchievementView extends View {
         canvas.drawPath(mOuterPath, mOuterCorePaint);
         canvas.drawPath(mInnerPath, mInnerCorePaint);
 
-        if (mIconBitmap != null) {
-            canvas.drawBitmap(mIconBitmap, mIconMatrix, mIconPaint);
+        if (mResizeBitmap != null) {
+            canvas.drawBitmap(mResizeBitmap, mIconMatrix, mIconPaint);
         }
     }
 
@@ -396,8 +398,8 @@ public class AchievementView extends View {
         int centerY = h / 2;
         int centerX = w / 2;
         int imageSize = (int) (h * (70.0 / 100));
-        mIconBitmap = Bitmap.createScaledBitmap(mIconBitmap, imageSize, imageSize, false);
-        mIconMatrix.setTranslate(centerX - mIconBitmap.getWidth() / 2, centerY - mIconBitmap.getHeight() / 2);
+        mResizeBitmap = Bitmap.createScaledBitmap(mIconBitmap, imageSize, imageSize, false);
+        mIconMatrix.setTranslate(centerX - mResizeBitmap.getWidth() / 2, centerY - mResizeBitmap.getHeight() / 2);
     }
 
     @Override

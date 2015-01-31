@@ -20,6 +20,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < 50; i++) {
             AchievementView view = new AchievementView(getApplicationContext());
             view.setAchievementType(AchievementView.GOLD);
+            view.setIconRes(R.drawable.sample_icon);
             ingressListView.addView(view);
         }
 
