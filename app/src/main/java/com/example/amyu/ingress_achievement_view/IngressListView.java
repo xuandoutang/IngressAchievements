@@ -48,6 +48,8 @@ public class IngressListView extends ViewGroup {
      */
     private OnItemClickListener mOnItemClickListener;
 
+    private boolean isShowBackground;
+
     /**
      * constructor
      * {@inheritDoc}
@@ -111,7 +113,7 @@ public class IngressListView extends ViewGroup {
         }
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.IngressListView);
         mNumColumns = a.getInt(R.styleable.IngressListView_numColumns, 6);
-
+        isShowBackground = a.getBoolean(R.styleable.IngressListView_showBackground, true);
         a.recycle();
     }
 
@@ -134,7 +136,7 @@ public class IngressListView extends ViewGroup {
 
         int width = MeasureSpec.getSize(widthMeasureSpec);
 
-        int viewWidth = (int) (width / (mNumColumns + 0.5));
+        int viewWidth = (int) Math.round(width / (mNumColumns + 0.5));
 
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -142,14 +144,16 @@ public class IngressListView extends ViewGroup {
         }
     }
 
-    private int mViewWidth;
-
-    private int mViewHeight;
+    private Bitmap mBackgroundBitmap;
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mViewWidth = w;
-        mViewHeight = h;
+        mBackgroundBitmap = getBackgroundBitmap(w, h);
+        if (isShowBackground) {
+            showBackground();
+        } else {
+            hideBackground();
+        }
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
@@ -171,9 +175,9 @@ public class IngressListView extends ViewGroup {
             AchievementView view = getChildAt(i);
             int width = view.getMeasuredWidth();
             int height = view.getMeasuredHeight();
-            int topSpace = (int) (Math.sin(Math.toRadians(30)) / 2 * height * column);
+            int topSpace = (int) Math.round(Math.sin(Math.toRadians(30)) / 2 * height * column);
 
-            int padding = (int) (width * PADDING_PERCENT)/2;
+            int padding = (int) Math.round(width * PADDING_PERCENT / 2);
 
 
             if (column % 2 == 0) {
@@ -282,10 +286,14 @@ public class IngressListView extends ViewGroup {
     }
 
     public void showBackground() {
-        setBackground(new BitmapDrawable(getResources(), getBackgroundBitmap(mViewWidth, mViewHeight)));
+        isShowBackground = true;
+        if (mBackgroundBitmap != null) {
+            setBackground(new BitmapDrawable(getResources(), mBackgroundBitmap));
+        }
     }
 
-    public void hideBackground(){
+    public void hideBackground() {
+        isShowBackground = false;
         setBackground(null);
     }
 
@@ -328,6 +336,10 @@ public class IngressListView extends ViewGroup {
      * @hide
      */
     private Bitmap getBackgroundBitmap(int maxWidth, int maxHeight) {
+        if (!(maxWidth > 0 && maxHeight > 0)) {
+            return null;
+        }
+
         final Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.achievement_background);
         final int bitmapWidth = bitmap.getWidth();
         final int bitmapHeight = bitmap.getHeight();

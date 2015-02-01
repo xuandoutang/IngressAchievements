@@ -33,8 +33,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.io.InputStream;
-
 public class AchievementView extends View {
 
     /**
@@ -377,11 +375,11 @@ public class AchievementView extends View {
         double ratioX = Math.cos(Math.toRadians(30));
 
         if (canResizeWidth) {
-            resizeWidth = (int) (heightSpecSize * ratioX);
+            resizeWidth = (int) Math.round(heightSpecSize * ratioX);
         }
 
         if (canResizeHeight) {
-            resizeHeight = (int) (widthSpecSize / ratioX);
+            resizeHeight = (int) Math.round(widthSpecSize / ratioX);
         }
 
         //super.onMeasureを呼んだあとにsetMeasuredDimensionするのが正しいらしい
@@ -406,14 +404,14 @@ public class AchievementView extends View {
             return;
         }
 
-        mOuterWidth = h * (3.0 / 100);
+        mOuterWidth = h * 0.03;
 
         if (mIconBitmap == null) {
             return;
         }
         int centerY = h / 2;
         int centerX = w / 2;
-        int imageSize = (int) (h * (70.0 / 100));
+        int imageSize = (int) Math.round(h * 0.7);
         mResizeBitmap = Bitmap.createScaledBitmap(mIconBitmap, imageSize, imageSize, false);
 
         mIconMatrix.setTranslate(centerX - mResizeBitmap.getWidth() / 2, centerY - mResizeBitmap.getHeight() / 2);

@@ -31,6 +31,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         final IngressListView ingressListView = (IngressListView) findViewById(R.id.sample1);
+        ingressListView.showBackground();
         ingressListView.setOnItemClickListener(new IngressListView.OnItemClickListener() {
             @Override
             public void onItemClick(AchievementView view, int position) {
