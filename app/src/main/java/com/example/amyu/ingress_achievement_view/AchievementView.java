@@ -33,6 +33,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.io.InputStream;
+
 public class AchievementView extends View {
 
     /**
@@ -348,7 +350,7 @@ public class AchievementView extends View {
     }
 
     /**
-     * wrapなときに六角形の形に合うように整形
+     * heightかwidthがwrapなときに六角形の形に合うように整形
      * {@inheritDoc}
      *
      * @param widthMeasureSpec
@@ -357,7 +359,6 @@ public class AchievementView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         boolean canResizeWidth;
-
         boolean canResizeHeight;
 
         final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -369,6 +370,7 @@ public class AchievementView extends View {
         int resizeWidth = widthSpecSize;
         int resizeHeight = heightSpecSize;
 
+        //ModeがEXACTLYじゃない場合はリサイズが可能
         canResizeWidth = widthSpecMode != MeasureSpec.EXACTLY;
         canResizeHeight = heightSpecMode != MeasureSpec.EXACTLY;
 
@@ -382,6 +384,7 @@ public class AchievementView extends View {
             resizeHeight = (int) (widthSpecSize / ratioX);
         }
 
+        //super.onMeasureを呼んだあとにsetMeasuredDimensionするのが正しいらしい
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         setMeasuredDimension(resizeWidth, resizeHeight);
     }
@@ -412,7 +415,13 @@ public class AchievementView extends View {
         int centerX = w / 2;
         int imageSize = (int) (h * (70.0 / 100));
         mResizeBitmap = Bitmap.createScaledBitmap(mIconBitmap, imageSize, imageSize, false);
+
         mIconMatrix.setTranslate(centerX - mResizeBitmap.getWidth() / 2, centerY - mResizeBitmap.getHeight() / 2);
+    }
+
+    private Bitmap getResizeBitmap(Bitmap bitmap, int width, int height) {
+        //TODO 効率的なリサイズ処理
+        return null;
     }
 
     /**

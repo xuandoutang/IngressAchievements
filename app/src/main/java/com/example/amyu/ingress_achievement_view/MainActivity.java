@@ -31,7 +31,14 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         final IngressListView ingressListView = (IngressListView) findViewById(R.id.sample1);
-        ingressListView.setOnItemClickListener(mOnItemClickListener);
+        ingressListView.setOnItemClickListener(new IngressListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AchievementView view, int position) {
+                Toast.makeText(getApplicationContext(), position + "", Toast.LENGTH_SHORT).show();
+                view.setAchievementType(AchievementView.SILVER);
+                ingressListView.showBackground();
+            }
+        });
 
         for (int i = 0; i < 50; i++) {
             AchievementView view = new AchievementView(getApplicationContext());
@@ -62,12 +69,5 @@ public class MainActivity extends Activity {
         });
     }
 
-    private IngressListView.OnItemClickListener mOnItemClickListener = new IngressListView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AchievementView view, int position) {
-            Toast.makeText(getApplicationContext(), position + "", Toast.LENGTH_SHORT).show();
-            view.setAchievementType(AchievementView.SILVER);
-        }
-    };
 
 }
