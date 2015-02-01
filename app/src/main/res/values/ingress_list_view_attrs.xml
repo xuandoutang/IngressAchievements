@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="IngressListView">
         <attr name="numColumns" format="integer"/>
+        <attr name="showBackground" format="boolean"/>
     </declare-styleable>
 </resources>
