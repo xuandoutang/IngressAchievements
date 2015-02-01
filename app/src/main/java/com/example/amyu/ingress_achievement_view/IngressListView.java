@@ -1,8 +1,28 @@
+/*
+ *    Copyright (C) 2015 Yuki Mima
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.example.amyu.ingress_achievement_view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -11,9 +31,6 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-/**
- * Created by amyu on 15/01/14.
- */
 public class IngressListView extends ViewGroup {
 
     /**
@@ -24,7 +41,7 @@ public class IngressListView extends ViewGroup {
     /**
      * 一つのAchievementに対するPaddingのパーセンテージ
      */
-    private final static double PADDING_PERCENT = 0.05;
+    private final static double PADDING_PERCENT = 0.1;
 
     /**
      * {@link com.example.amyu.ingress_achievement_view.IngressListView.OnItemClickListener} のOnItemClickListenerよ
@@ -102,6 +119,7 @@ public class IngressListView extends ViewGroup {
      * 初期化
      */
     private void init() {
+
     }
 
     /**
@@ -124,6 +142,16 @@ public class IngressListView extends ViewGroup {
         }
     }
 
+    private int mViewWidth;
+
+    private int mViewHeight;
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        mViewWidth = w;
+        mViewHeight = h;
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
 
     /**
      * AchievementViewをそれぞれ配置する場所を決める
@@ -169,6 +197,8 @@ public class IngressListView extends ViewGroup {
                 row = 0;
             }
         }
+
+
     }
 
     /**
@@ -251,6 +281,14 @@ public class IngressListView extends ViewGroup {
         requestLayout();
     }
 
+    public void showBackground() {
+        setBackground(new BitmapDrawable(getResources(), getBackgroundBitmap(mViewWidth, mViewHeight)));
+    }
+
+    public void hideBackground(){
+        setBackground(null);
+    }
+
     /**
      * あのりすなーせっとするやつ
      * @param listener
@@ -280,5 +318,29 @@ public class IngressListView extends ViewGroup {
         public void onItemClick(AchievementView view, int position);
     }
 
+    /**
+     * あのAchievementの後ろに表示されてる背景を作成
+     * Utilsで持たせた方がいい感
+     *
+     * @param maxWidth  画面の横幅
+     * @param maxHeight 画面の縦幅
+     * @return 結合させたBitmap
+     * @hide
+     */
+    private Bitmap getBackgroundBitmap(int maxWidth, int maxHeight) {
+        final Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.achievement_background);
+        final int bitmapWidth = bitmap.getWidth();
+        final int bitmapHeight = bitmap.getHeight();
 
+        Bitmap backgroundBitmap = Bitmap.createBitmap(maxWidth, maxHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(backgroundBitmap);
+
+        for (int i = 0; i < maxHeight / bitmapHeight + 1; i++) {
+            for (int j = 0; j < maxWidth / bitmapWidth + 1; j++) {
+                canvas.drawBitmap(bitmap, j * bitmapWidth, i * bitmapHeight, null);
+            }
+        }
+        bitmap.recycle();
+        return backgroundBitmap;
+    }
 }

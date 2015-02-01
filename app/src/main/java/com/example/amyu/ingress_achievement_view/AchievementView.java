@@ -1,3 +1,19 @@
+/*
+ *    Copyright (C) 2015 Yuki Mima
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.example.amyu.ingress_achievement_view;
 
 import android.annotation.TargetApi;
@@ -17,9 +33,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-/**
- * Created by amyu on 15/01/13.
- */
+import java.io.InputStream;
+
 public class AchievementView extends View {
 
     /**
@@ -229,9 +244,8 @@ public class AchievementView extends View {
 
     /**
      * AttributeSetからのデータの取得
-     * {@inheritDoc}
      *
-     * @param attrs
+     * @param attrs セットする {@link android.util.AttributeSet}
      */
     private void setUpAttr(AttributeSet attrs) {
         if (attrs == null) {
@@ -308,6 +322,7 @@ public class AchievementView extends View {
             double cos = Math.cos(Math.toRadians(60 * i + 30));
             double sin = Math.sin(Math.toRadians(60 * i + 30));
 
+            //TODO 今は暫定で動いてるけど､ちゃんとしたPaddingの仕方じゃない
             double innerX = centerX + (radius - mOuterWidth) * cos + getPaddingLeft();
             double innerY = centerY + (radius - mOuterWidth) * sin + getPaddingTop();
 
@@ -335,7 +350,7 @@ public class AchievementView extends View {
     }
 
     /**
-     * wrapなときに六角形の形に合うように整形
+     * heightかwidthがwrapなときに六角形の形に合うように整形
      * {@inheritDoc}
      *
      * @param widthMeasureSpec
@@ -344,7 +359,6 @@ public class AchievementView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         boolean canResizeWidth;
-
         boolean canResizeHeight;
 
         final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -356,6 +370,7 @@ public class AchievementView extends View {
         int resizeWidth = widthSpecSize;
         int resizeHeight = heightSpecSize;
 
+        //ModeがEXACTLYじゃない場合はリサイズが可能
         canResizeWidth = widthSpecMode != MeasureSpec.EXACTLY;
         canResizeHeight = heightSpecMode != MeasureSpec.EXACTLY;
 
@@ -369,6 +384,7 @@ public class AchievementView extends View {
             resizeHeight = (int) (widthSpecSize / ratioX);
         }
 
+        //super.onMeasureを呼んだあとにsetMeasuredDimensionするのが正しいらしい
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         setMeasuredDimension(resizeWidth, resizeHeight);
     }
@@ -399,9 +415,21 @@ public class AchievementView extends View {
         int centerX = w / 2;
         int imageSize = (int) (h * (70.0 / 100));
         mResizeBitmap = Bitmap.createScaledBitmap(mIconBitmap, imageSize, imageSize, false);
+
         mIconMatrix.setTranslate(centerX - mResizeBitmap.getWidth() / 2, centerY - mResizeBitmap.getHeight() / 2);
     }
 
+    private Bitmap getResizeBitmap(Bitmap bitmap, int width, int height) {
+        //TODO 効率的なリサイズ処理
+        return null;
+    }
+
+    /**
+     * 六角形の部分のみに {@link com.example.amyu.ingress_achievement_view.AchievementView.OnClickListener} を呼ぶ
+     *
+     * @param event {@inheritDoc}
+     * @return trueの時は処理は上のViewに任せ､falseの時はこのViewでTouchEventを終了する
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
